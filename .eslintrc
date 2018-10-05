@@ -1,0 +1,9 @@
+{
+  "extends": "airbnb-base",
+  "settings": {
+    "import/core-modules": ["aws-sdk"]
+  },
+  "rules": {
+    "no-console": 0
+  }
+}

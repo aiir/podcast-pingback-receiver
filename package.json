@@ -1,0 +1,25 @@
+{
+  "author": "Andy Buckingham <andy@aiir.com>",
+  "dependencies": {
+    "jsonwebtoken": "^8.3.0"
+  },
+  "description": "MVP Podcast Pingback receiver suitable for deployment as an AWS Lambda function",
+  "devDependencies": {
+    "aws-sdk": "^2.327.0",
+    "eslint": "^5.6.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "name": "@aiir/podcast-pingback-receiver",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:aiir/podcast-pingback-receiver"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "mkdir -p lambda-package && rm -rf lambda-package/* && cp index.js package.json package-lock.json lambda-package/ && cd lambda-package && npm install --production && rm package.json package-lock.json"
+  },
+  "version": "1.0.1"
+}

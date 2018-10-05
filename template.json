@@ -1,0 +1,84 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Parameters": {
+    "TokenSecret": {
+      "Description": "256-bit secret used to encrypt the listener token",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "StorageBucket": {
+      "Type": "AWS::S3::Bucket"
+    },
+    "ReceiverFunctionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "lambda.amazonaws.com"
+            },
+            "Action": [
+              "sts:AssumeRole"
+            ]
+          }
+        },
+        "Policies": [
+          {
+            "PolicyName": "PodcastPingbackReceiverLambdaFunctionS3WritePolicy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": {
+                "Action": [
+                  "s3:PutObject"
+                ],
+                "Effect": "Allow",
+                "Resource": [
+                  {
+                    "Fn::Sub": "arn:aws:s3:::${StorageBucket}/*"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ReceiverFunction": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "index.handler",
+        "Runtime": "nodejs8.10",
+        "CodeUri": "./lambda-package",
+        "Environment": {
+          "Variables": {
+            "BUCKET": {
+              "Ref": "StorageBucket"
+            },
+            "SECRET": {
+              "Ref": "TokenSecret"
+            }
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "ReceiverFunctionRole",
+            "Arn"
+          ]
+        },
+        "Events": {
+          "ReceiverResouce": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/pingback",
+              "Method": "post"
+            }
+          }
+        }
+      }
+    }
+  }
+}
