@@ -18,6 +18,72 @@ This is intended to remain a minimal implementation for demonstration purposes.
 $ npm install @aiir\podcast-pingback-lambda
 ```
 
+## Methodology
+
+The Lambda function will save all valid incoming requests to an S3 bucket. The
+body will be the original JSON object that was received and it's key is made up
+of the date and time of the incoming request and the first component of the
+listener's UUID.
+
+If a `listener` object is included in the request, the `listener_token` value
+returned in the response is a
+[JSON Web Token](https://tools.ietf.org/html/rfc7519) which includes the
+listener's UUID, encoded using the secret supplied to the Lambda function.
+
+For example, with the function configured with a secret of `MySpecialSecret`, an
+incoming request of:
+
+```
+POST /pingback HTTP/1.1
+Content-Type: application/json
+Date: Mon, 8 Oct 2018 08:17:22 GMT
+
+{ "uuid": "2eefaf08-d43e-46f9-ac53-520c881e59b8",
+  "content": "https://alice.example.net/episode-1.mp3",
+  "listener": {
+    "date_of_birth": "1984-11-21"
+  },
+  "events": [
+    {
+      "event": "resume",
+      "date": "2018-01-01T09:00:00Z",
+      "offset": 0
+    }
+  ]
+}
+```
+
+would elicit the response:
+
+```
+HTTP/1.1 201 Created
+Content-Type: application/json
+Date: Mon, 8 Oct 2018 08:17:22 GMT
+
+{ "status": "ok",
+  "listener_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMmVlZmFmMDgtZDQzZS00NmY5LWFjNTMtNTIwYzg4MWU1OWI4In0.vgUQ_HS7EwswfmXkD4f0koUBcrCmiiv0hkkcacY3oCc"
+}
+```
+
+An object with the key `2018-10-08-08:17:22-2eefaf08.json` would be written to
+the S3 bucket, with the same body as the request:
+
+```
+{ "uuid": "2eefaf08-d43e-46f9-ac53-520c881e59b8",
+  "content": "https://alice.example.net/episode-1.mp3",
+  "listener": {
+    "date_of_birth": "1984-11-21"
+  },
+  "events": [
+    {
+      "event": "resume",
+      "date": "2018-01-01T09:00:00Z",
+      "offset": 0
+    }
+  ]
+}
+```
+
 ## Deployment
 
 ### Using CloudFormation
