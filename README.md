@@ -1,3 +1,7 @@
+_As of February 14th, 2020 due to the announcement of the
+[Podcast Pingback project being suspended](https://podping.info/2020/02/14/update),
+this project is now archived and no further updates are planned._
+
 # Podcast Pingback Receiver Lambda Function
 
 A minimum viable [Podcast Pingback](https://podping.info/) receiver suitable for
